@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(400).send("Missing authorization code.");
   }
 
-  const appUrl = process.env.APP_URL!;
+  const appUrl = process.env.APP_URL!.replace(/\/$/, "");
   const redirectUri = `${appUrl}/api/auth/callback`;
 
   const oauth2Client = new google.auth.OAuth2(
