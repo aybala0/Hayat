@@ -162,7 +162,7 @@ export function AddExpenseForm({ user, onSuccess, onClose }: Props) {
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="e.g. Dinner at Forno"
+                placeholder="e.g. Trader Joes"
                 className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               />
             </div>
