@@ -67,6 +67,7 @@ export function AddExpenseForm({ user, onSuccess, onClose }: Props) {
   const [splitOption, setSplitOption] = useState<SplitOption>("50/50-me");
   const [myPercent, setMyPercent] = useState("50");
   const [customPaidBy, setCustomPaidBy] = useState<"me" | "them">("me");
+  const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -115,7 +116,7 @@ export function AddExpenseForm({ user, onSuccess, onClose }: Props) {
         paidBy,
         aylasShare,
         erdemsShare,
-        notes: "",
+        notes: notes.trim(),
       });
       onSuccess();
       onClose();
@@ -283,6 +284,20 @@ export function AddExpenseForm({ user, onSuccess, onClose }: Props) {
                 </div>
               </div>
             )}
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Notes <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
+              <input
+                type="text"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Any extra details…"
+                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
 
             {/* Error */}
             {error && (
