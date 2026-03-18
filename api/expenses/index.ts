@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getSession } from "../../lib/auth.js";
-import { getExpenses, appendExpense } from "../../lib/sheets.js";
+import { getExpenses, appendExpense, deleteExpense } from "../../lib/sheets.js";
 import { USER_A_NAME, USER_A_EMAIL, USER_B_NAME } from "../../lib/config.js";
 import type { Expense } from "../../lib/types.js";
 
@@ -69,6 +69,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (err) {
       console.error("appendExpense error:", err);
       return res.status(500).json({ error: "Failed to save expense to Google Sheets." });
+    }
+  }
+
+  if (req.method === "DELETE") {
+    const rowIndex = parseInt(req.query.rowIndex as string);
+    if (isNaN(rowIndex) || rowIndex < 0) {
+      return res.status(400).json({ error: "Invalid rowIndex." });
+    }
+    try {
+      await deleteExpense(session.accessToken, session.refreshToken, rowIndex);
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error("deleteExpense error:", err);
+      return res.status(500).json({ error: "Failed to delete expense." });
     }
   }
 

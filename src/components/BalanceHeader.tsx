@@ -20,7 +20,7 @@ export function BalanceHeader({ user, balance, loading, onLogout }: Props) {
     <div className="bg-white border-b border-gray-100 px-4 pt-4 pb-5 sticky top-0 z-10">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-4">
-        <span className="font-bold text-gray-900 text-lg">Hayat</span>
+        <span className="font-bold text-lg" style={{ color: "#008200" }}>Hayat</span>
         <div className="flex items-center gap-3">
           <span className="text-sm text-gray-500">{user.name}</span>
           <button

@@ -200,7 +200,6 @@ export const TAGS = [
   { label: "Rent & Bills",     emoji: "🏠" },
   { label: "Transport",        emoji: "🚗" },
   { label: "Fun & Activities", emoji: "🎉" },
-  { label: "Health",           emoji: "🏥" },
   { label: "Shopping",         emoji: "🛍️" },
   { label: "Travel",           emoji: "✈️" },
   { label: "Other",            emoji: "📦" },

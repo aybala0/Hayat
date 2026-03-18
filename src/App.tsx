@@ -6,6 +6,7 @@ import { LoginScreen } from "./components/LoginScreen";
 import { BalanceHeader } from "./components/BalanceHeader";
 import { AddExpenseForm } from "./components/AddExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
+import { api } from "./api";
 
 export default function App() {
   const { user, loading: authLoading, logout } = useAuth();
@@ -35,6 +36,12 @@ export default function App() {
     refreshExpenses();
   };
 
+  const handleDelete = async (rowIndex: number) => {
+    await api.deleteExpense(rowIndex);
+    refreshBalance();
+    refreshExpenses();
+  };
+
   return (
     <div className="max-w-lg mx-auto min-h-screen bg-gray-50 relative">
       <BalanceHeader
@@ -50,6 +57,7 @@ export default function App() {
           loading={expensesLoading}
           error={expensesError}
           user={user}
+          onDelete={handleDelete}
         />
       </div>
 

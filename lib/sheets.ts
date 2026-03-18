@@ -51,9 +51,31 @@ export async function appendExpense(
 ): Promise<void> {
   const auth = makeAuth(accessToken, refreshToken);
   const sheets = google.sheets({ version: "v4", auth });
-  await sheets.spreadsheets.values.append({
+
+  // Insert a blank row at position 1 (0-indexed) = row 2 in sheet, below header
+  await sheets.spreadsheets.batchUpdate({
     spreadsheetId: SHEET_ID,
-    range: RANGE,
+    requestBody: {
+      requests: [
+        {
+          insertDimension: {
+            range: {
+              sheetId: 0, // gid of Sheet1 (first sheet)
+              dimension: "ROWS",
+              startIndex: 1,
+              endIndex: 2,
+            },
+            inheritFromBefore: false,
+          },
+        },
+      ],
+    },
+  });
+
+  // Write data into the newly created row 2
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range: "Sheet1!A2:H2",
     valueInputOption: "USER_ENTERED",
     requestBody: {
       values: [
@@ -67,6 +89,33 @@ export async function appendExpense(
           expense.erdemsShare,
           expense.notes,
         ],
+      ],
+    },
+  });
+}
+
+export async function deleteExpense(
+  accessToken: string,
+  refreshToken: string,
+  dataRowIndex: number // 0-based index in the data rows (0 = first row after header)
+): Promise<void> {
+  const auth = makeAuth(accessToken, refreshToken);
+  const sheets = google.sheets({ version: "v4", auth });
+
+  await sheets.spreadsheets.batchUpdate({
+    spreadsheetId: SHEET_ID,
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId: 0,
+              dimension: "ROWS",
+              startIndex: dataRowIndex + 1, // +1 to skip header row
+              endIndex: dataRowIndex + 2,
+            },
+          },
+        },
       ],
     },
   });

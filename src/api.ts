@@ -33,4 +33,9 @@ export const api = {
     }),
 
   getBalance: () => apiFetch<Balance>("/api/balance"),
+
+  deleteExpense: (rowIndex: number) =>
+    apiFetch<{ ok: boolean }>(`/api/expenses?rowIndex=${rowIndex}`, {
+      method: "DELETE",
+    }),
 };

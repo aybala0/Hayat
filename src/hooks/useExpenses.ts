@@ -12,7 +12,7 @@ export function useExpenses() {
     setError(null);
     try {
       const data = await api.getExpenses();
-      setExpenses([...data].reverse()); // newest first
+      setExpenses(data); // sheet is newest-first (inserted at row 2)
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load expenses.");
     } finally {
