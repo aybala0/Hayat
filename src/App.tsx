@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { useBalance } from "./hooks/useBalance";
 import { useExpenses } from "./hooks/useExpenses";
@@ -8,11 +8,17 @@ import { AddExpenseForm } from "./components/AddExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
 import { api } from "./api";
 
+const PULL_THRESHOLD = 72;
+
 export default function App() {
   const { user, loading: authLoading, logout } = useAuth();
   const { balance, loading: balanceLoading, refresh: refreshBalance } = useBalance();
   const { expenses, loading: expensesLoading, error: expensesError, refresh: refreshExpenses } = useExpenses();
   const [showForm, setShowForm] = useState(false);
+  const [pullY, setPullY] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const startYRef = useRef(0);
+  const pullingRef = useRef(false);
 
   useEffect(() => {
     if (user) {
@@ -20,6 +26,35 @@ export default function App() {
       refreshExpenses();
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      startYRef.current = e.touches[0].clientY;
+      pullingRef.current = true;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!pullingRef.current || refreshing) return;
+    const dy = e.touches[0].clientY - startYRef.current;
+    if (dy > 0) {
+      setPullY(Math.min(dy * 0.5, PULL_THRESHOLD));
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (!pullingRef.current) return;
+    pullingRef.current = false;
+
+    if (pullY >= PULL_THRESHOLD) {
+      setRefreshing(true);
+      setPullY(0);
+      await Promise.all([refreshBalance(), refreshExpenses()]);
+      setRefreshing(false);
+    } else {
+      setPullY(0);
+    }
+  };
 
   if (authLoading) {
     return (
@@ -42,8 +77,28 @@ export default function App() {
     refreshExpenses();
   };
 
+  const indicatorSize = refreshing ? PULL_THRESHOLD : pullY;
+
   return (
-    <div className="max-w-lg mx-auto min-h-screen bg-gray-50 relative">
+    <div
+      className="max-w-lg mx-auto min-h-screen bg-gray-50 relative"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Pull-to-refresh indicator */}
+      <div
+        className="flex items-center justify-center overflow-hidden transition-all duration-200"
+        style={{ height: indicatorSize }}
+      >
+        {(pullY > 10 || refreshing) && (
+          <div
+            className={`w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full ${refreshing ? "animate-spin" : ""}`}
+            style={{ opacity: refreshing ? 1 : pullY / PULL_THRESHOLD }}
+          />
+        )}
+      </div>
+
       <BalanceHeader
         user={user}
         balance={balance}
@@ -72,7 +127,6 @@ export default function App() {
         </svg>
       </button>
 
-      {/* Add expense bottom sheet */}
       {showForm && (
         <AddExpenseForm
           user={user}
