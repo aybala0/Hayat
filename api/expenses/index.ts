@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getSession } from "../../lib/auth";
-import { getExpenses, appendExpense } from "../../lib/sheets";
-import { USER_A_NAME, USER_A_EMAIL, USER_B_NAME } from "../../lib/config";
-import type { Expense } from "../../lib/types";
+import { getSession } from "../../lib/auth.js";
+import { getExpenses, appendExpense } from "../../lib/sheets.js";
+import { USER_A_NAME, USER_A_EMAIL, USER_B_NAME } from "../../lib/config.js";
+import type { Expense } from "../../lib/types.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const session = await getSession(req);

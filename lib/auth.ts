@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import type { JWTPayload } from "./types";
+import type { JWTPayload } from "./types.js";
 
 const COOKIE_NAME = "hayat_session";
 const MAX_AGE = 30 * 24 * 60 * 60; // 30 days in seconds

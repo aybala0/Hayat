@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getSession } from "../lib/auth";
-import { computeBalance } from "../lib/sheets";
-import { getOtherUser } from "../lib/config";
-import type { Balance } from "../lib/types";
+import { getSession } from "../lib/auth.js";
+import { computeBalance } from "../lib/sheets.js";
+import { getOtherUser } from "../lib/config.js";
+import type { Balance } from "../lib/types.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const session = await getSession(req);

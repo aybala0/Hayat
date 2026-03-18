@@ -1,6 +1,6 @@
 import { google } from "googleapis";
-import type { Expense } from "./types";
-import { USER_A_NAME, USER_A_EMAIL, USER_B_NAME } from "./config";
+import type { Expense } from "./types.js";
+import { USER_A_NAME, USER_A_EMAIL, USER_B_NAME } from "./config.js";
 
 const SHEET_ID = process.env.GOOGLE_SHEET_ID!;
 const RANGE = "Sheet1!A:H";

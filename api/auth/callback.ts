@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { google } from "googleapis";
-import { getUserByEmail } from "../../lib/config";
-import { setSession } from "../../lib/auth";
+import { getUserByEmail } from "../../lib/config.js";
+import { setSession } from "../../lib/auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const code = req.query.code as string | undefined;
