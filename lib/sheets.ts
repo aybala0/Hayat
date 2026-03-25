@@ -94,6 +94,36 @@ export async function appendExpense(
   });
 }
 
+export async function updateExpense(
+  accessToken: string,
+  refreshToken: string,
+  dataRowIndex: number,
+  expense: Expense
+): Promise<void> {
+  const auth = makeAuth(accessToken, refreshToken);
+  const sheets = google.sheets({ version: "v4", auth });
+  const sheetRow = dataRowIndex + 2; // +1 skip header, +1 for 1-indexed
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID,
+    range: `Sheet1!A${sheetRow}:H${sheetRow}`,
+    valueInputOption: "USER_ENTERED",
+    requestBody: {
+      values: [
+        [
+          expense.date,
+          expense.description,
+          expense.tag,
+          expense.amount,
+          expense.paidBy,
+          expense.aylasShare,
+          expense.erdemsShare,
+          expense.notes,
+        ],
+      ],
+    },
+  });
+}
+
 export async function deleteExpense(
   accessToken: string,
   refreshToken: string,

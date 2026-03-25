@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getSession } from "../../lib/auth.js";
-import { getExpenses, appendExpense, deleteExpense } from "../../lib/sheets.js";
+import { getExpenses, appendExpense, updateExpense, deleteExpense } from "../../lib/sheets.js";
 import { USER_A_NAME, USER_A_EMAIL, USER_B_NAME } from "../../lib/config.js";
 import type { Expense } from "../../lib/types.js";
 
@@ -69,6 +69,53 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (err) {
       console.error("appendExpense error:", err);
       return res.status(500).json({ error: "Failed to save expense to Google Sheets." });
+    }
+  }
+
+  if (req.method === "PUT") {
+    const rowIndex = parseInt(req.query.rowIndex as string);
+    if (isNaN(rowIndex) || rowIndex < 0) {
+      return res.status(400).json({ error: "Invalid rowIndex." });
+    }
+
+    const { description, tag, amount, paidBy, aylasShare, erdemsShare, notes } =
+      req.body as Partial<Expense>;
+
+    if (!description || !tag || amount == null || !paidBy || aylasShare == null || erdemsShare == null) {
+      return res.status(400).json({ error: "Missing required fields." });
+    }
+    if (typeof amount !== "number" || amount <= 0) {
+      return res.status(400).json({ error: "Amount must be a positive number." });
+    }
+    if (paidBy !== USER_A_NAME && paidBy !== USER_B_NAME) {
+      return res.status(400).json({ error: "Invalid paidBy value." });
+    }
+    if (Math.abs(aylasShare + erdemsShare - amount) > 0.02) {
+      return res.status(400).json({ error: "Shares must add up to the total amount." });
+    }
+
+    const existing = (await getExpenses(session.accessToken, session.refreshToken))[rowIndex];
+    if (!existing) {
+      return res.status(404).json({ error: "Expense not found." });
+    }
+
+    const updated: Expense = {
+      date: existing.date, // preserve original date
+      description,
+      tag,
+      amount,
+      paidBy,
+      aylasShare,
+      erdemsShare,
+      notes: notes ?? "",
+    };
+
+    try {
+      await updateExpense(session.accessToken, session.refreshToken, rowIndex, updated);
+      return res.json(updated);
+    } catch (err) {
+      console.error("updateExpense error:", err);
+      return res.status(500).json({ error: "Failed to update expense." });
     }
   }
 

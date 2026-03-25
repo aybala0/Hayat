@@ -6,6 +6,7 @@ import { LoginScreen } from "./components/LoginScreen";
 import { BalanceHeader } from "./components/BalanceHeader";
 import { AddExpenseForm } from "./components/AddExpenseForm";
 import { ExpenseList } from "./components/ExpenseList";
+import { EditExpenseForm } from "./components/EditExpenseForm";
 import { api } from "./api";
 
 const PULL_THRESHOLD = 72;
@@ -15,6 +16,7 @@ export default function App() {
   const { balance, loading: balanceLoading, refresh: refreshBalance } = useBalance();
   const { expenses, loading: expensesLoading, error: expensesError, refresh: refreshExpenses } = useExpenses();
   const [showForm, setShowForm] = useState(false);
+  const [editingRow, setEditingRow] = useState<number | null>(null);
   const [pullY, setPullY] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const startYRef = useRef(0);
@@ -113,6 +115,7 @@ export default function App() {
           error={expensesError}
           user={user}
           onDelete={handleDelete}
+          onEdit={(rowIndex) => setEditingRow(rowIndex)}
         />
       </div>
 
@@ -132,6 +135,16 @@ export default function App() {
           user={user}
           onSuccess={handleExpenseAdded}
           onClose={() => setShowForm(false)}
+        />
+      )}
+
+      {editingRow !== null && expenses[editingRow] && (
+        <EditExpenseForm
+          user={user}
+          expense={expenses[editingRow]}
+          rowIndex={editingRow}
+          onSuccess={handleExpenseAdded}
+          onClose={() => setEditingRow(null)}
         />
       )}
     </div>

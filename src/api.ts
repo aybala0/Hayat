@@ -34,6 +34,12 @@ export const api = {
 
   getBalance: () => apiFetch<Balance>("/api/balance"),
 
+  updateExpense: (rowIndex: number, data: Omit<Expense, "date">) =>
+    apiFetch<Expense>(`/api/expenses?rowIndex=${rowIndex}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+
   deleteExpense: (rowIndex: number) =>
     apiFetch<{ ok: boolean }>(`/api/expenses?rowIndex=${rowIndex}`, {
       method: "DELETE",
