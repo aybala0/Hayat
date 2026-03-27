@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getSession } from "../../lib/auth.js";
+import { getSession, clearSession, isInvalidGrant } from "../../lib/auth.js";
 import { getExpenses, appendExpense, updateExpense, deleteExpense } from "../../lib/sheets.js";
 import { USER_A_NAME, USER_A_EMAIL, USER_B_NAME } from "../../lib/config.js";
 import type { Expense } from "../../lib/types.js";
@@ -16,6 +16,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.json(expenses);
     } catch (err) {
       console.error("getExpenses error:", err);
+      if (isInvalidGrant(err)) {
+        clearSession(res);
+        return res.status(401).json({ error: "Session expired. Please sign in again." });
+      }
       return res.status(500).json({ error: "Failed to load expenses from Google Sheets." });
     }
   }

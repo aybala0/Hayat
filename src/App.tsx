@@ -12,7 +12,13 @@ import { api } from "./api";
 const PULL_THRESHOLD = 72;
 
 export default function App() {
-  const { user, loading: authLoading, logout } = useAuth();
+  const { user, loading: authLoading, logout, forceLogout } = useAuth();
+
+  const handle401 = (err: unknown) => {
+    if (err && typeof err === "object" && (err as { status?: number }).status === 401) {
+      forceLogout();
+    }
+  };
   const { balance, loading: balanceLoading, refresh: refreshBalance } = useBalance();
   const { expenses, loading: expensesLoading, error: expensesError, refresh: refreshExpenses } = useExpenses();
   const [showForm, setShowForm] = useState(false);
@@ -24,8 +30,7 @@ export default function App() {
 
   useEffect(() => {
     if (user) {
-      refreshBalance();
-      refreshExpenses();
+      Promise.all([refreshBalance(), refreshExpenses()]).catch(handle401);
     }
   }, [user]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -51,7 +56,7 @@ export default function App() {
     if (pullY >= PULL_THRESHOLD) {
       setRefreshing(true);
       setPullY(0);
-      await Promise.all([refreshBalance(), refreshExpenses()]);
+      await Promise.all([refreshBalance(), refreshExpenses()]).catch(handle401);
       setRefreshing(false);
     } else {
       setPullY(0);

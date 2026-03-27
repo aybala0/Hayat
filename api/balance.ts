@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getSession } from "../lib/auth.js";
+import { getSession, clearSession, isInvalidGrant } from "../lib/auth.js";
 import { computeBalance } from "../lib/sheets.js";
 import { getOtherUser } from "../lib/config.js";
 import type { Balance } from "../lib/types.js";
@@ -33,6 +33,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.json(balance);
   } catch (err) {
     console.error("computeBalance error:", err);
+    if (isInvalidGrant(err)) {
+      clearSession(res);
+      return res.status(401).json({ error: "Session expired. Please sign in again." });
+    }
     res.status(500).json({ error: "Failed to compute balance." });
   }
 }

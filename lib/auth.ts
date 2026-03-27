@@ -55,6 +55,14 @@ export async function setSession(
   );
 }
 
+export function isInvalidGrant(err: unknown): boolean {
+  if (err && typeof err === "object" && "response" in err) {
+    const data = (err as { response?: { data?: { error?: string } } }).response?.data;
+    return data?.error === "invalid_grant";
+  }
+  return false;
+}
+
 export function clearSession(res: VercelResponse): void {
   res.setHeader(
     "Set-Cookie",

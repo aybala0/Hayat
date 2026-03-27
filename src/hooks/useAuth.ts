@@ -14,10 +14,13 @@ export function useAuth() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Call this when any API call returns 401 (e.g. expired Google token)
+  const forceLogout = () => setUser(null);
+
   const logout = async () => {
     await api.logout().catch(() => null);
     setUser(null);
   };
 
-  return { user, loading, logout };
+  return { user, loading, logout, forceLogout };
 }
